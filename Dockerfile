@@ -15,16 +15,9 @@ RUN mvn clean package -DskipTests
 # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
 FROM openjdk:8-jre-alpine
 
-# Install some fonts
-ENV LANG en_US.UTF-8
-RUN apk add --update ttf-dejavu ttf-droid ttf-freefont ttf-liberation && rm -rf /var/cache/apk/*
-
 # Copy the jar to the production image from the builder stage.
-COPY --from=builder /app/target/helloWorld-*.jar /helloWorld.jar
+COPY --from=builder /app/target/*.jar /app.jar
 
-# Service must listen to $PORT environment variable.
-# This default value facilitates local development.
-ENV PORT 8080
 
 # Run the web service on container startup.
-CMD ["java","-Dserver.port=${PORT}","-jar","/helloWorld.jar"]
+CMD java -jar /app.jar
